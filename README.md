@@ -30,7 +30,7 @@ continuous timelapse of mold growing, installed in a museum.
 | Raspberry Pi 4 | Display / server node |
 | Waveshare 5-inch display | 800 × 480, connected to Pi4 HDMI0 |
 | USB stick | FAT32 or exFAT, **labelled `TIMELAPSE`** |
-| WiFi router | Both Pis on the same network |
+| WiFi router | Both Pis on the same network (GL-net Mango — SSID: **Goodlife**) |
 
 ---
 
@@ -55,10 +55,43 @@ continuous timelapse of mold growing, installed in a museum.
 ├── scripts/
 │   ├── setup_pi3.sh      ← One-time setup on Pi3
 │   ├── setup_pi4.sh      ← One-time setup on Pi4
+│   ├── setup_network.sh  ← Configure museum WiFi + static IP
 │   ├── check_status.sh   ← Live health check from any machine
 │   ├── switch_wifi.sh    ← Change WiFi network
 │   └── mount_usb.sh      ← Manually mount the USB stick
 └── README.md
+```
+
+---
+
+## Museum network
+
+The museum uses a **GL-net Mango** travel router:
+
+| Setting | Value |
+|---------|-------|
+| SSID | `Goodlife` |
+| Password | `Goodlife` |
+| Gateway | `192.168.8.1` |
+
+### Static IP assignments
+
+| Device | Hostname | Static IP |
+|--------|----------|-----------|
+| Raspberry Pi 3 (camera) | `pi3` | `192.168.8.10` |
+| Raspberry Pi 4 (display) | `pi4` | `192.168.8.11` |
+
+The setup scripts (`setup_pi3.sh` / `setup_pi4.sh`) configure WiFi and static
+IPs automatically via `scripts/setup_network.sh`.  To reconfigure manually:
+
+```bash
+sudo bash /home/pi/2pis/scripts/setup_network.sh
+```
+
+To skip network configuration during setup (e.g. on a home network):
+
+```bash
+SKIP_NETWORK=1 bash scripts/setup_pi3.sh   # or setup_pi4.sh
 ```
 
 ---
@@ -113,11 +146,12 @@ Key settings:
 
 ### 5 · Set up Pi3 (camera)
 
-First, edit `pi3/config.py` to point at Pi4:
+The default `pi3/config.py` already points at Pi4's static IP on the museum
+network (`192.168.8.11`).  If you use a different network, edit it first:
 
 ```python
-PI4_HOST = "pi4.local"   # or the Pi4's static IP, e.g. "192.168.1.100"
-CAPTURE_INTERVAL = 30    # seconds between frames
+PI4_HOST = "192.168.8.11"  # Pi4 static IP on the Goodlife network
+CAPTURE_INTERVAL = 30      # seconds between frames
 ```
 
 Then run the setup:
@@ -188,15 +222,15 @@ No manual intervention is needed.
 ### Check live status (from any machine on the same network)
 
 ```bash
-bash scripts/check_status.sh          # uses pi4.local by default
-bash scripts/check_status.sh 192.168.1.100  # or use IP address
+bash scripts/check_status.sh              # uses 192.168.8.11 by default
+bash scripts/check_status.sh 192.168.8.11 # or specify explicitly
 ```
 
 Output:
 ```
 =========================================
  2pis Status Check
- Pi4 address: pi4.local:5000
+ Pi4 address: 192.168.8.11:5000
 =========================================
 
 [Network]
@@ -225,9 +259,9 @@ Output:
 Example:
 
 ```bash
-curl http://pi4.local:5000/status
-curl http://pi4.local:5000/frames
-curl http://pi4.local:5000/rebuild
+curl http://192.168.8.11:5000/status
+curl http://192.168.8.11:5000/frames
+curl http://192.168.8.11:5000/rebuild
 ```
 
 ### View service logs
@@ -306,8 +340,8 @@ sudo systemctl enable pi3-camera
 
 ## Switching WiFi network
 
-If you need to connect the Pis to a different WiFi network (e.g. back to your
-office network for maintenance):
+The Pis ship configured for the museum WiFi (`Goodlife`).  If you need to
+connect to a different network temporarily (e.g. your office for maintenance):
 
 ```bash
 bash /home/pi/2pis/scripts/switch_wifi.sh "NewSSID" "NewPassword"
@@ -320,6 +354,12 @@ bash /home/pi/2pis/scripts/switch_wifi.sh
 # → prompts for SSID and password
 ```
 
+To switch back to the museum network:
+
+```bash
+sudo bash /home/pi/2pis/scripts/setup_network.sh
+```
+
 Works with both NetworkManager (Pi OS Bookworm) and wpa_supplicant (Buster /
 Bullseye).  The old config is backed up automatically.
 
@@ -327,21 +367,26 @@ Bullseye).  The old config is backed up automatically.
 
 ## Network: using a static IP instead of `pi4.local`
 
-If mDNS (`pi4.local`) does not work on your router, assign a static IP to Pi4.
+Static IPs are pre-configured by `scripts/setup_network.sh` (see
+[Museum network](#museum-network) above).  Pi3 `config.py` already points at
+Pi4's static IP (`192.168.8.11`).
 
-**On Pi4** – add to `/etc/dhcpcd.conf`:
+If you need **different** static IPs on another router, edit
+`scripts/setup_network.sh` and `pi3/config.py`, then re-run the setup.
+
+For a quick manual override **on Pi4** — add to `/etc/dhcpcd.conf`:
 
 ```
 interface wlan0
-static ip_address=192.168.1.100/24
-static routers=192.168.1.1
+static ip_address=192.168.8.11/24
+static routers=192.168.8.1
 static domain_name_servers=8.8.8.8
 ```
 
 Then edit **Pi3** `config.py`:
 
 ```python
-PI4_HOST = "192.168.1.100"
+PI4_HOST = "192.168.8.11"
 ```
 
 Restart services after making this change.
@@ -359,5 +404,5 @@ Restart services after making this change.
 | `ffmpeg not found` on Pi4 | Not installed | `sudo apt install ffmpeg` |
 | `mpv not found` on Pi4 | Not installed | `sudo apt install mpv` |
 | Camera not detected on Pi3 | Interface not enabled | `sudo raspi-config` → Interface Options → Camera |
-| `pi4.local` not found | avahi not running | `sudo systemctl start avahi-daemon` on Pi4 |
+| `pi4.local` not found | avahi not running or mDNS unavailable | Use static IP `192.168.8.11` instead; `sudo systemctl start avahi-daemon` on Pi4 |
 

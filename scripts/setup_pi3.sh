@@ -14,6 +14,14 @@ INSTALL_PATH="/etc/systemd/system/${SERVICE_NAME}.service"
 echo "===  Pi3 Setup ==="
 echo "Repo: ${REPO_DIR}"
 
+# --- 0. Museum network (WiFi + static IP) ---
+echo "[0/4] Configuring museum network…"
+if [[ "${SKIP_NETWORK:-}" != "1" ]]; then
+    sudo bash "${REPO_DIR}/scripts/setup_network.sh"
+else
+    echo "      Skipped (SKIP_NETWORK=1)."
+fi
+
 # --- 1. System dependencies ---
 echo "[1/4] Installing system dependencies…"
 sudo apt-get update -qq
