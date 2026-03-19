@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Pi4 — Offline Tests
+Pi5 — Offline Tests
 ====================
 Tests for the server, timelapse builder, and player logic.
 No real hardware, network, or ffmpeg required.
 
 Run:
-    cd pi4
+    cd pi5
     python3 -m pytest test_server.py -v
   or
     python3 test_server.py
@@ -22,36 +22,36 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-_PI4_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, _PI4_DIR)
+_PI5_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, _PI5_DIR)
 
-# Import pi4 config via its unique module name (_pi4cfg) to avoid
-# shadowing by pi5/config.py when both test suites run in the same session.
-import _pi4cfg as config  # noqa: F401
+# Import pi5 config via its unique module name (_pi5cfg) to avoid
+# shadowing by pi1/config.py when both test suites run in the same session.
+import _pi5cfg as config  # noqa: F401
 
-# Also register pi4/config as the generic 'config' so server.py's
-# `from config import (...)` always finds the pi4 version.
+# Also register pi5/config as the generic 'config' so server.py's
+# `from config import (...)` always finds the pi5 version.
 import importlib.util as _ilu
 
-_pi4_conf_spec = _ilu.spec_from_file_location(
-    "config", os.path.join(_PI4_DIR, "config.py")
+_pi5_conf_spec = _ilu.spec_from_file_location(
+    "config", os.path.join(_PI5_DIR, "config.py")
 )
-_pi4_conf_mod = _ilu.module_from_spec(_pi4_conf_spec)
-sys.modules["config"] = _pi4_conf_mod
-_pi4_conf_spec.loader.exec_module(_pi4_conf_mod)
+_pi5_conf_mod = _ilu.module_from_spec(_pi5_conf_spec)
+sys.modules["config"] = _pi5_conf_mod
+_pi5_conf_spec.loader.exec_module(_pi5_conf_mod)
 
-# Explicitly load server and timelapse from pi4/ so sys.modules entries used
-# by patch("server.*") and patch("timelapse.*") always resolve to the pi4 versions.
+# Explicitly load server and timelapse from pi5/ so sys.modules entries used
+# by patch("server.*") and patch("timelapse.*") always resolve to the pi5 versions.
 
-def _load_pi4(name: str):
-    spec = _ilu.spec_from_file_location(name, os.path.join(_PI4_DIR, f"{name}.py"))
+def _load_pi5(name: str):
+    spec = _ilu.spec_from_file_location(name, os.path.join(_PI5_DIR, f"{name}.py"))
     mod = _ilu.module_from_spec(spec)
     sys.modules[name] = mod
     spec.loader.exec_module(mod)
     return mod
 
-_server_mod    = _load_pi4("server")
-_timelapse_mod = _load_pi4("timelapse")
+_server_mod    = _load_pi5("server")
+_timelapse_mod = _load_pi5("timelapse")
 
 
 # ---------------------------------------------------------------------------
@@ -318,7 +318,7 @@ class TestStorageHelpers(unittest.TestCase):
 # Config sanity tests
 # ---------------------------------------------------------------------------
 
-class TestPi4Config(unittest.TestCase):
+class TestPi5Config(unittest.TestCase):
     def test_server_port_is_positive(self):
         self.assertGreater(config.SERVER_PORT, 0)
 

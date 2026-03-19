@@ -1,5 +1,5 @@
 """
-Pi4 Configuration
+Pi5 Configuration
 -----------------
 Edit these values to match your setup.
 """
@@ -34,6 +34,6 @@ DISPLAY_HEIGHT = 480
 MPV_EXTRA_OPTS = "--no-osc --no-osd-bar"
 
 # --- Logging ---
-LOG_FILE = "/home/pi/pi4-server.log"
+LOG_FILE = "/home/pi/pi5-server.log"
 LOG_MAX_BYTES    = 5 * 1024 * 1024
 LOG_BACKUP_COUNT = 3

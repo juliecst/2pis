@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Pi4 — Video Player
+Pi5 — Video Player
 ===================
 Plays the timelapse video on loop on the Waveshare 5-inch display (800×480).
 When a new timelapse is built, mpv is restarted at the next loop so it picks
@@ -44,7 +44,7 @@ WAIT_FOR_VIDEO  = 10   # seconds to wait before first retry if no video found
 
 
 def setup_logging(debug: bool) -> logging.Logger:
-    logger = logging.getLogger("pi4-player")
+    logger = logging.getLogger("pi5-player")
     logger.setLevel(logging.DEBUG if debug else logging.INFO)
     fmt = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
 
@@ -156,7 +156,7 @@ def run_player(debug: bool = False) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Pi4 timelapse video player.")
+    parser = argparse.ArgumentParser(description="Pi5 timelapse video player.")
     parser.add_argument(
         "--debug",
         action="store_true",

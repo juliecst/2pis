@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Pi4 — Frame Receiver & Timelapse Server
+Pi5 — Frame Receiver & Timelapse Server
 =========================================
-HTTP server (Flask) that receives JPEG frames from Pi3, stores them on a USB
+HTTP server (Flask) that receives JPEG frames from Pi1, stores them on a USB
 stick (or locally as fallback), and triggers a timelapse rebuild.
 
 Endpoints
@@ -54,7 +54,7 @@ except ModuleNotFoundError:
 # ---------------------------------------------------------------------------
 
 def setup_logging() -> logging.Logger:
-    logger = logging.getLogger("pi4-server")
+    logger = logging.getLogger("pi5-server")
     logger.setLevel(logging.DEBUG)
     fmt = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
 
@@ -235,11 +235,11 @@ def trigger_rebuild():
 # ---------------------------------------------------------------------------
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Pi4 frame receiver server.")
+    parser = argparse.ArgumentParser(description="Pi5 frame receiver server.")
     parser.add_argument("--debug", action="store_true", help="Enable Flask debug mode.")
     args = parser.parse_args()
 
-    log.info("Pi4 server starting on %s:%d", SERVER_HOST, SERVER_PORT)
+    log.info("Pi5 server starting on %s:%d", SERVER_HOST, SERVER_PORT)
     log.info("USB mounted: %s", is_usb_mounted())
     frames_dir, video_path = get_storage_paths()
     log.info("Frames dir : %s", frames_dir)
