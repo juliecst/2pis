@@ -28,7 +28,7 @@ case "${HOSTNAME}" in
     pi3) STATIC_IP="192.168.8.10" ;;
     pi4) STATIC_IP="192.168.8.11" ;;
     *)
-        echo "ERROR: Unrecognised hostname '${HOSTNAME}'."
+        echo "ERROR: Unrecognized hostname '${HOSTNAME}'."
         echo "       Expected 'pi3' or 'pi4'. Set the hostname first:"
         echo "         sudo hostnamectl set-hostname pi3   # or pi4"
         exit 1
