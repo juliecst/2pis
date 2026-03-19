@@ -1,13 +1,13 @@
 [Unit]
-Description=Pi4 Timelapse Frame Receiver Server
+Description=Pi5 Timelapse Frame Receiver Server
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=simple
 User=pi
-WorkingDirectory=/home/pi/2pis/pi4
-ExecStart=/usr/bin/python3 /home/pi/2pis/pi4/server.py
+WorkingDirectory=/home/pi/2pis/pi5
+ExecStart=/usr/bin/python3 /home/pi/2pis/pi5/server.py
 Restart=always
 RestartSec=10
 StandardOutput=journal

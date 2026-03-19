@@ -1,13 +1,13 @@
 [Unit]
-Description=Pi5 Timelapse Camera Capture
+Description=Pi1 Timelapse Camera Capture
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=simple
 User=pi
-WorkingDirectory=/home/pi/2pis/pi5
-ExecStart=/usr/bin/python3 /home/pi/2pis/pi5/camera.py
+WorkingDirectory=/home/pi/2pis/pi1
+ExecStart=/usr/bin/python3 /home/pi/2pis/pi1/camera.py
 Restart=always
 RestartSec=10
 StandardOutput=journal
