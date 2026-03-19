@@ -1,0 +1,23 @@
+[Unit]
+Description=Pi4 Timelapse Video Player
+# Start after the server is ready (server creates/updates the video)
+After=pi4-server.service
+Wants=pi4-server.service
+
+[Service]
+Type=simple
+User=pi
+# Required for mpv to access the display
+Environment=DISPLAY=:0
+Environment=XAUTHORITY=/home/pi/.Xauthority
+WorkingDirectory=/home/pi/2pis/pi4
+ExecStart=/usr/bin/python3 /home/pi/2pis/pi4/player.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+# Wait for the display to be ready
+ExecStartPre=/bin/sleep 10
+
+[Install]
+WantedBy=multi-user.target
