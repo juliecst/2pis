@@ -34,7 +34,7 @@ sudo apt-get install -y --no-install-recommends \
 pip3 install --break-system-packages --quiet flask pillow numpy 2>/dev/null \
     || pip3 install --quiet flask pillow numpy
 
-# --- 2. Enable avahi (mDNS so Pi3 can reach pi5.local) ---
+# --- 2. Enable avahi (mDNS so Pi1 can reach pi5.local) ---
 echo "[2/5] Enabling avahi mDNS…"
 sudo systemctl enable --now avahi-daemon
 echo "      Pi5 will be discoverable as 'pi5.local' on the local network."

@@ -8,8 +8,8 @@
 # This script:
 #   1. Connects to the museum WiFi (Goodlife — GL-net Mango router)
 #   2. Assigns a static IP based on the hostname:
-#        pi5 → 192.168.8.10
-#        pi4 → 192.168.8.11
+#        pi1 → 192.168.8.10
+#        pi5 → 192.168.8.11
 #
 # Works with both NetworkManager (Pi OS Bookworm) and dhcpcd (Buster / Bullseye).
 # =============================================================================
@@ -25,12 +25,12 @@ SUBNET="/24"
 # --- Determine static IP from hostname ---
 HOSTNAME=$(hostname)
 case "${HOSTNAME}" in
-    pi5) STATIC_IP="192.168.8.10" ;;
-    pi4) STATIC_IP="192.168.8.11" ;;
+    pi1) STATIC_IP="192.168.8.10" ;;
+    pi5) STATIC_IP="192.168.8.11" ;;
     *)
         echo "ERROR: Unrecognized hostname '${HOSTNAME}'."
-        echo "       Expected 'pi5' or 'pi4'. Set the hostname first:"
-        echo "         sudo hostnamectl set-hostname pi5   # or pi4"
+        echo "       Expected 'pi1' or 'pi5'. Set the hostname first:"
+        echo "         sudo hostnamectl set-hostname pi1   # or pi5"
         exit 1
         ;;
 esac

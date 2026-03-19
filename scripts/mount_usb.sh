@@ -2,7 +2,7 @@
 # =============================================================================
 # mount_usb.sh — Mount the TIMELAPSE USB stick and verify it is writable
 # =============================================================================
-# Usage (run on Pi4):
+# Usage (run on Pi5):
 #   bash mount_usb.sh [device]     e.g.  bash mount_usb.sh /dev/sda1
 #
 # If no device is given the script tries to find one automatically by label.
@@ -59,5 +59,5 @@ fi
 echo ""
 df -h "${MOUNT_POINT}"
 echo ""
-echo "USB stick ready.  Restart the pi4-server service if it is already running:"
-echo "  sudo systemctl restart pi4-server"
+echo "USB stick ready.  Restart the pi5-server service if it is already running:"
+echo "  sudo systemctl restart pi5-server"

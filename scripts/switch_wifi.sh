@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# switch_wifi.sh — Switch Pi3 or Pi4 back to normal (home/office) WiFi
+# switch_wifi.sh — Switch Pi1 or Pi5 back to normal (home/office) WiFi
 # =============================================================================
 # Usage:
 #   bash switch_wifi.sh                    # interactive

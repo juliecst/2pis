@@ -1,39 +1,39 @@
 #!/usr/bin/env bash
 # =============================================================================
-# check_status.sh — Live status check for both Pi3 and Pi4
+# check_status.sh — Live status check for both Pi1 and Pi5
 # =============================================================================
 # Run from any machine on the same network:
-#   bash check_status.sh [pi4_host]
+#   bash check_status.sh [pi5_host]
 #
-# Default host: pi4.local  (or set PI4_HOST env variable)
+# Default host: pi5.local  (or set PI5_HOST env variable)
 # =============================================================================
 set -euo pipefail
 
-PI4_HOST="${1:-${PI4_HOST:-192.168.8.11}}"
-PI4_PORT="${PI4_PORT:-5000}"
-BASE_URL="http://${PI4_HOST}:${PI4_PORT}"
+PI5_HOST="${1:-${PI5_HOST:-192.168.8.11}}"
+PI5_PORT="${PI5_PORT:-5000}"
+BASE_URL="http://${PI5_HOST}:${PI5_PORT}"
 TIMEOUT=5
 
 echo "========================================="
 echo " 2pis Status Check"
-echo " Pi4 address: ${PI4_HOST}:${PI4_PORT}"
+echo " Pi5 address: ${PI5_HOST}:${PI5_PORT}"
 echo "========================================="
 
 # --- Ping test ---
 echo ""
 echo "[Network]"
-if ping -c1 -W2 "${PI4_HOST}" &>/dev/null; then
-    echo "  ✓ Pi4 is reachable on the network"
+if ping -c1 -W2 "${PI5_HOST}" &>/dev/null; then
+    echo "  ✓ Pi5 is reachable on the network"
 else
-    echo "  ✗ Cannot ping ${PI4_HOST} — check network / hostname"
+    echo "  ✗ Cannot ping ${PI5_HOST} — check network / hostname"
 fi
 
 # --- HTTP status endpoint ---
 echo ""
-echo "[Pi4 Server]"
+echo "[Pi5 Server]"
 if ! STATUS_JSON=$(curl -sf --max-time "${TIMEOUT}" "${BASE_URL}/status" 2>&1); then
     echo "  ✗ Server not responding at ${BASE_URL}/status"
-    echo "    → Check: sudo systemctl status pi4-server"
+    echo "    → Check: sudo systemctl status pi5-server"
     exit 1
 fi
 
@@ -67,11 +67,11 @@ if frames:
     print(f"  Newest : {frames[-1]}")
 PYEOF
 
-# --- Pi4 service status ---
+# --- Pi5 service status ---
 echo ""
-echo "[Services on Pi4]"
-echo "  (run this on Pi4 for detailed service status):"
-echo "    sudo systemctl status pi4-server pi4-player"
+echo "[Services on Pi5]"
+echo "  (run this on Pi5 for detailed service status):"
+echo "    sudo systemctl status pi5-server pi5-player"
 echo ""
 
 # --- Trigger manual rebuild ---

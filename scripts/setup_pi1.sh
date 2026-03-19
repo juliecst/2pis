@@ -37,7 +37,7 @@ pip3 install --break-system-packages --quiet pillow numpy 2>/dev/null \
 
 # --- 2. Camera interface ---
 echo "[2/4] Verifying camera interface…"
-# On Pi 5 the camera is auto-detected via libcamera; no raspi-config step needed.
+# On Pi 4 the camera is auto-detected via libcamera; no raspi-config step needed.
 if command -v libcamera-hello &>/dev/null; then
     echo "      libcamera is available — camera should be auto-detected."
 elif command -v raspi-config &>/dev/null; then
