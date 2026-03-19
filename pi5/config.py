@@ -1,12 +1,12 @@
 """
-Pi3 Configuration
+Pi5 Configuration
 -----------------
 Edit these values to match your setup.
 """
 
 # --- Network ---
-# Pi4 address: use hostname (requires mDNS / avahi) or static IP
-PI4_HOST = "pi4.local"   # Change to e.g. "192.168.1.100" if mDNS does not work
+# Pi4 address: static IP on the museum Goodlife network (GL-net Mango router)
+PI4_HOST = "192.168.8.11"
 PI4_PORT = 5000
 PI4_RECEIVE_ENDPOINT = "/receive_frame"
 PI4_STATUS_ENDPOINT   = "/status"
@@ -22,6 +22,6 @@ RETRY_DELAY  = 10   # seconds between retries
 REQUEST_TIMEOUT = 15  # seconds before a send attempt times out
 
 # --- Logging ---
-LOG_FILE = "/home/pi/pi3-camera.log"
+LOG_FILE = "/home/pi/pi5-camera.log"
 LOG_MAX_BYTES  = 5 * 1024 * 1024   # 5 MB
 LOG_BACKUP_COUNT = 3

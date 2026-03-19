@@ -5,7 +5,7 @@ Loads pi4/config.py from the directory this file lives in, using importlib,
 so it is always the correct config regardless of what is on sys.path or
 cached in sys.modules['config'].
 
-Import this instead of 'config' in test files to avoid collisions with pi3's
+Import this instead of 'config' in test files to avoid collisions with pi5's
 config.py when both test suites are collected in the same pytest session.
 """
 import importlib.util

@@ -13,6 +13,14 @@ USB_MOUNT="/media/pi/${USB_LABEL}"
 echo "===  Pi4 Setup ==="
 echo "Repo: ${REPO_DIR}"
 
+# --- 0. Museum network (WiFi + static IP) ---
+echo "[0/5] Configuring museum network…"
+if [[ "${SKIP_NETWORK:-}" != "1" ]]; then
+    sudo bash "${REPO_DIR}/scripts/setup_network.sh"
+else
+    echo "      Skipped (SKIP_NETWORK=1)."
+fi
+
 # --- 1. System dependencies ---
 echo "[1/5] Installing system dependencies…"
 sudo apt-get update -qq

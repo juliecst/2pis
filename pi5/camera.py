@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Pi3 — Camera Capture and Send
+Pi5 — Camera Capture and Send
 ==============================
 Captures JPEG frames from the Raspberry Pi HQ Camera at a fixed interval
 and sends each frame to the Pi4 receiver via a simple HTTP POST request.
@@ -8,7 +8,7 @@ and sends each frame to the Pi4 receiver via a simple HTTP POST request.
 Designed to be:
   - Robust: retries on network failure, never crashes permanently
   - Simple: no Samba, no shared filesystems — just HTTP
-  - Persistent: resumes automatically when Pi3 is rebooted
+  - Persistent: resumes automatically when Pi5 is rebooted
 
 Usage:
     python3 camera.py            # normal operation
@@ -49,7 +49,7 @@ except ModuleNotFoundError:
 # ---------------------------------------------------------------------------
 
 def setup_logging() -> logging.Logger:
-    logger = logging.getLogger("pi3-camera")
+    logger = logging.getLogger("pi5-camera")
     logger.setLevel(logging.DEBUG)
     fmt = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
 
@@ -266,7 +266,7 @@ def run_capture_loop(camera, lib: str) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Pi3 camera capture and send.")
+    parser = argparse.ArgumentParser(description="Pi5 camera capture and send.")
     parser.add_argument(
         "--test",
         action="store_true",

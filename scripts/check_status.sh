@@ -9,7 +9,7 @@
 # =============================================================================
 set -euo pipefail
 
-PI4_HOST="${1:-${PI4_HOST:-pi4.local}}"
+PI4_HOST="${1:-${PI4_HOST:-192.168.8.11}}"
 PI4_PORT="${PI4_PORT:-5000}"
 BASE_URL="http://${PI4_HOST}:${PI4_PORT}"
 TIMEOUT=5

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Pi3 — Offline Tests
+Pi5 — Offline Tests
 ====================
 Tests that run without a real camera or network connection.
 
 Run:
-    cd pi3
+    cd pi5
     python3 -m pytest test_capture.py -v
   or
     python3 test_capture.py
@@ -18,26 +18,26 @@ import importlib.util
 import unittest
 from unittest.mock import MagicMock, patch
 
-# Allow running from repo root or pi3/
-_PI3_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, _PI3_DIR)
+# Allow running from repo root or pi5/
+_PI5_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, _PI5_DIR)
 
-# Import pi3 config via its unique module name (_pi3cfg) to avoid
+# Import pi5 config via its unique module name (_pi5cfg) to avoid
 # shadowing by pi4/config.py when both test suites run in the same session.
-import _pi3cfg as config
+import _pi5cfg as config
 
-# Also register pi3/config as the generic 'config' so camera.py's
-# `from config import (...)` always finds the pi3 version.
-_pi3_conf_spec = importlib.util.spec_from_file_location(
-    "config", os.path.join(_PI3_DIR, "config.py")
+# Also register pi5/config as the generic 'config' so camera.py's
+# `from config import (...)` always finds the pi5 version.
+_pi5_conf_spec = importlib.util.spec_from_file_location(
+    "config", os.path.join(_PI5_DIR, "config.py")
 )
-_pi3_conf_mod = importlib.util.module_from_spec(_pi3_conf_spec)
-sys.modules["config"] = _pi3_conf_mod
-_pi3_conf_spec.loader.exec_module(_pi3_conf_mod)
+_pi5_conf_mod = importlib.util.module_from_spec(_pi5_conf_spec)
+sys.modules["config"] = _pi5_conf_mod
+_pi5_conf_spec.loader.exec_module(_pi5_conf_mod)
 
-# Load camera from pi3/ explicitly so it picks up pi3/config
+# Load camera from pi5/ explicitly so it picks up pi5/config
 _camera_spec = importlib.util.spec_from_file_location(
-    "camera", os.path.join(_PI3_DIR, "camera.py")
+    "camera", os.path.join(_PI5_DIR, "camera.py")
 )
 _camera_mod = importlib.util.module_from_spec(_camera_spec)
 sys.modules["camera"] = _camera_mod   # needed for patch("camera.*") to work
