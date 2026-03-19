@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Pi5 — Offline Tests
+Pi1 — Offline Tests
 ====================
 Tests that run without a real camera or network connection.
 
 Run:
-    cd pi5
+    cd pi1
     python3 -m pytest test_capture.py -v
   or
     python3 test_capture.py
@@ -18,26 +18,26 @@ import importlib.util
 import unittest
 from unittest.mock import MagicMock, patch
 
-# Allow running from repo root or pi5/
-_PI5_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, _PI5_DIR)
+# Allow running from repo root or pi1/
+_PI1_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, _PI1_DIR)
 
-# Import pi5 config via its unique module name (_pi5cfg) to avoid
-# shadowing by pi4/config.py when both test suites run in the same session.
-import _pi5cfg as config
+# Import pi1 config via its unique module name (_pi1cfg) to avoid
+# shadowing by pi5/config.py when both test suites run in the same session.
+import _pi1cfg as config
 
-# Also register pi5/config as the generic 'config' so camera.py's
-# `from config import (...)` always finds the pi5 version.
-_pi5_conf_spec = importlib.util.spec_from_file_location(
-    "config", os.path.join(_PI5_DIR, "config.py")
+# Also register pi1/config as the generic 'config' so camera.py's
+# `from config import (...)` always finds the pi1 version.
+_pi1_conf_spec = importlib.util.spec_from_file_location(
+    "config", os.path.join(_PI1_DIR, "config.py")
 )
-_pi5_conf_mod = importlib.util.module_from_spec(_pi5_conf_spec)
-sys.modules["config"] = _pi5_conf_mod
-_pi5_conf_spec.loader.exec_module(_pi5_conf_mod)
+_pi1_conf_mod = importlib.util.module_from_spec(_pi1_conf_spec)
+sys.modules["config"] = _pi1_conf_mod
+_pi1_conf_spec.loader.exec_module(_pi1_conf_mod)
 
-# Load camera from pi5/ explicitly so it picks up pi5/config
+# Load camera from pi1/ explicitly so it picks up pi1/config
 _camera_spec = importlib.util.spec_from_file_location(
-    "camera", os.path.join(_PI5_DIR, "camera.py")
+    "camera", os.path.join(_PI1_DIR, "camera.py")
 )
 _camera_mod = importlib.util.module_from_spec(_camera_spec)
 sys.modules["camera"] = _camera_mod   # needed for patch("camera.*") to work
@@ -46,8 +46,8 @@ _camera_spec.loader.exec_module(_camera_mod)
 _generate_mock_frame  = _camera_mod._generate_mock_frame
 capture_frame         = _camera_mod.capture_frame
 send_frame            = _camera_mod.send_frame
-check_pi4_reachable   = _camera_mod.check_pi4_reachable
-PI4_URL               = _camera_mod.PI4_URL
+check_pi5_reachable   = _camera_mod.check_pi5_reachable
+PI5_URL               = _camera_mod.PI5_URL
 
 
 class TestMockFrame(unittest.TestCase):
@@ -149,15 +149,15 @@ class TestSendFrame(unittest.TestCase):
         self.assertEqual(mock_post.call_count, 2)
 
     @patch("camera.requests.get")
-    def test_check_pi4_reachable_returns_true_on_200(self, mock_get):
+    def test_check_pi5_reachable_returns_true_on_200(self, mock_get):
         mock_get.return_value = MagicMock(status_code=200)
-        self.assertTrue(check_pi4_reachable())
+        self.assertTrue(check_pi5_reachable())
 
     @patch("camera.requests.get")
-    def test_check_pi4_reachable_returns_false_on_error(self, mock_get):
+    def test_check_pi5_reachable_returns_false_on_error(self, mock_get):
         import requests as req
         mock_get.side_effect = req.exceptions.ConnectionError
-        self.assertFalse(check_pi4_reachable())
+        self.assertFalse(check_pi5_reachable())
 
 
 class TestConfig(unittest.TestCase):
@@ -178,9 +178,9 @@ class TestConfig(unittest.TestCase):
     def test_max_retries_positive(self):
         self.assertGreater(config.MAX_RETRIES, 0)
 
-    def test_pi4_host_is_set(self):
-        self.assertIsInstance(config.PI4_HOST, str)
-        self.assertTrue(len(config.PI4_HOST) > 0)
+    def test_pi5_host_is_set(self):
+        self.assertIsInstance(config.PI5_HOST, str)
+        self.assertTrue(len(config.PI5_HOST) > 0)
 
 
 if __name__ == "__main__":

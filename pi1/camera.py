@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Pi5 — Camera Capture and Send
+Pi1 — Camera Capture and Send
 ==============================
 Captures JPEG frames from the Raspberry Pi HQ Camera at a fixed interval
-and sends each frame to the Pi4 receiver via a simple HTTP POST request.
+and sends each frame to the Pi5 receiver via a simple HTTP POST request.
 
 Designed to be:
   - Robust: retries on network failure, never crashes permanently
   - Simple: no Samba, no shared filesystems — just HTTP
-  - Persistent: resumes automatically when Pi5 is rebooted
+  - Persistent: resumes automatically when Pi1 is rebooted
 
 Usage:
     python3 camera.py            # normal operation
@@ -28,7 +28,7 @@ import requests
 
 try:
     from config import (
-        PI4_HOST, PI4_PORT, PI4_RECEIVE_ENDPOINT,
+        PI5_HOST, PI5_PORT, PI5_RECEIVE_ENDPOINT,
         CAPTURE_INTERVAL, RESOLUTION, JPEG_QUALITY,
         MAX_RETRIES, RETRY_DELAY, REQUEST_TIMEOUT,
         LOG_FILE, LOG_MAX_BYTES, LOG_BACKUP_COUNT,
@@ -38,7 +38,7 @@ except ModuleNotFoundError:
     import os
     sys.path.insert(0, os.path.dirname(__file__))
     from config import (
-        PI4_HOST, PI4_PORT, PI4_RECEIVE_ENDPOINT,
+        PI5_HOST, PI5_PORT, PI5_RECEIVE_ENDPOINT,
         CAPTURE_INTERVAL, RESOLUTION, JPEG_QUALITY,
         MAX_RETRIES, RETRY_DELAY, REQUEST_TIMEOUT,
         LOG_FILE, LOG_MAX_BYTES, LOG_BACKUP_COUNT,
@@ -49,7 +49,7 @@ except ModuleNotFoundError:
 # ---------------------------------------------------------------------------
 
 def setup_logging() -> logging.Logger:
-    logger = logging.getLogger("pi5-camera")
+    logger = logging.getLogger("pi1-camera")
     logger.setLevel(logging.DEBUG)
     fmt = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
 
@@ -189,15 +189,15 @@ def _generate_mock_frame(buf: io.BytesIO) -> None:
 # Network
 # ---------------------------------------------------------------------------
 
-PI4_URL = f"http://{PI4_HOST}:{PI4_PORT}{PI4_RECEIVE_ENDPOINT}"
+PI5_URL = f"http://{PI5_HOST}:{PI5_PORT}{PI5_RECEIVE_ENDPOINT}"
 
 
 def send_frame(frame_bytes: bytes, timestamp: str) -> bool:
-    """Send a JPEG frame to Pi4.  Returns True on success."""
+    """Send a JPEG frame to Pi5.  Returns True on success."""
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             resp = requests.post(
-                PI4_URL,
+                PI5_URL,
                 files={"frame": (f"{timestamp}.jpg", frame_bytes, "image/jpeg")},
                 data={"timestamp": timestamp},
                 timeout=REQUEST_TIMEOUT,
@@ -206,13 +206,13 @@ def send_frame(frame_bytes: bytes, timestamp: str) -> bool:
                 log.info("Frame %s sent successfully (attempt %d)", timestamp, attempt)
                 return True
             log.warning(
-                "Pi4 returned HTTP %d for frame %s (attempt %d/%d)",
+                "Pi5 returned HTTP %d for frame %s (attempt %d/%d)",
                 resp.status_code, timestamp, attempt, MAX_RETRIES,
             )
         except requests.exceptions.ConnectionError:
             log.warning(
-                "Cannot reach Pi4 at %s (attempt %d/%d) — is it running?",
-                PI4_URL, attempt, MAX_RETRIES,
+                "Cannot reach Pi5 at %s (attempt %d/%d) — is it running?",
+                PI5_URL, attempt, MAX_RETRIES,
             )
         except requests.exceptions.Timeout:
             log.warning(
@@ -229,9 +229,9 @@ def send_frame(frame_bytes: bytes, timestamp: str) -> bool:
     return False
 
 
-def check_pi4_reachable() -> bool:
+def check_pi5_reachable() -> bool:
     """Quick connectivity check before starting the capture loop."""
-    url = f"http://{PI4_HOST}:{PI4_PORT}/status"
+    url = f"http://{PI5_HOST}:{PI5_PORT}/status"
     try:
         resp = requests.get(url, timeout=REQUEST_TIMEOUT)
         return resp.status_code == 200
@@ -244,11 +244,11 @@ def check_pi4_reachable() -> bool:
 # ---------------------------------------------------------------------------
 
 def run_capture_loop(camera, lib: str) -> None:
-    log.info("Starting capture loop — interval %ds, sending to %s", CAPTURE_INTERVAL, PI4_URL)
+    log.info("Starting capture loop — interval %ds, sending to %s", CAPTURE_INTERVAL, PI5_URL)
 
-    if not check_pi4_reachable():
+    if not check_pi5_reachable():
         log.warning(
-            "Pi4 not reachable at startup.  Frames will be retried when it comes online."
+            "Pi5 not reachable at startup.  Frames will be retried when it comes online."
         )
 
     while True:
@@ -266,7 +266,7 @@ def run_capture_loop(camera, lib: str) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Pi5 camera capture and send.")
+    parser = argparse.ArgumentParser(description="Pi1 camera capture and send.")
     parser.add_argument(
         "--test",
         action="store_true",

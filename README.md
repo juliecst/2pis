@@ -5,16 +5,16 @@ continuous timelapse of mold growing, installed in a museum.
 
 ```
 ┌─────────────────────────────┐     HTTP POST     ┌──────────────────────────────────┐
-│  Raspberry Pi 5             │ ───────────────►  │  Raspberry Pi 4                  │
+│  Raspberry Pi 4 (pi1)       │ ───────────────►  │  Raspberry Pi 5                  │
 │  HQ Camera + lens           │   (same WiFi)     │  Waveshare 5-inch display        │
 │                             │                   │  USB stick (TIMELAPSE)           │
-│  pi5/camera.py              │                   │  pi4/server.py  (Flask :5000)    │
-│  → capture JPEG every 30 s  │                   │  pi4/timelapse.py (ffmpeg)       │
-│  → send to Pi4              │                   │  pi4/player.py  (mpv loop)       │
+│  pi1/camera.py              │                   │  pi5/server.py  (Flask :5000)    │
+│  → capture JPEG every 30 s  │                   │  pi5/timelapse.py (ffmpeg)       │
+│  → send to Pi5              │                   │  pi5/player.py  (mpv loop)       │
 └─────────────────────────────┘                   └──────────────────────────────────┘
 ```
 
-- **No Samba, no shared filesystem** — Pi5 pushes frames to Pi4 over plain HTTP.
+- **No Samba, no shared filesystem** — Pi1 pushes frames to Pi5 over plain HTTP.
 - **Persistent** — frames are stored on the USB stick; everything resumes
   automatically after a power cycle.
 - **Self-healing** — all services restart automatically if they crash.
@@ -25,10 +25,10 @@ continuous timelapse of mold growing, installed in a museum.
 
 | Part | Details |
 |------|---------|
-| Raspberry Pi 5 | Camera node |
-| Raspberry Pi HQ Camera | With lens, connected to Pi5 via CSI cable |
-| Raspberry Pi 4 | Display / server node |
-| Waveshare 5-inch display | 800 × 480, connected to Pi4 HDMI0 |
+| Raspberry Pi 4 | Camera node (hostname: pi1) |
+| Raspberry Pi HQ Camera | With lens, connected to Pi1 via CSI cable |
+| Raspberry Pi 5 | Display / server node (hostname: pi5) |
+| Waveshare 5-inch display | 800 × 480, connected to Pi5 HDMI0 |
 | USB stick | FAT32 or exFAT, **labelled `TIMELAPSE`** |
 | WiFi router | Both Pis on the same network (GL-net Mango — SSID: **Goodlife**) |
 
@@ -38,23 +38,23 @@ continuous timelapse of mold growing, installed in a museum.
 
 ```
 2pis/
-├── pi5/
-│   ├── config.py         ← Pi5 settings (IP, interval, resolution)
+├── pi1/
+│   ├── config.py         ← Pi1 settings (IP, interval, resolution)
 │   ├── camera.py         ← Capture + send loop
 │   └── test_capture.py   ← Offline tests (no camera needed)
-├── pi4/
-│   ├── config.py         ← Pi4 settings (paths, FPS, display)
+├── pi5/
+│   ├── config.py         ← Pi5 settings (paths, FPS, display)
 │   ├── server.py         ← Flask HTTP server, receives frames
 │   ├── timelapse.py      ← Build MP4 with ffmpeg
 │   ├── player.py         ← Loop video on display with mpv
 │   └── test_server.py    ← Offline tests (no hardware needed)
 ├── systemd/
-│   ├── pi5-camera.service
-│   ├── pi4-server.service
-│   └── pi4-player.service
+│   ├── pi1-camera.service
+│   ├── pi5-server.service
+│   └── pi5-player.service
 ├── scripts/
+│   ├── setup_pi1.sh      ← One-time setup on Pi1
 │   ├── setup_pi5.sh      ← One-time setup on Pi5
-│   ├── setup_pi4.sh      ← One-time setup on Pi4
 │   ├── setup_network.sh  ← Configure museum WiFi + static IP
 │   ├── check_status.sh   ← Live health check from any machine
 │   ├── switch_wifi.sh    ← Change WiFi network
@@ -78,10 +78,10 @@ The museum uses a **GL-net Mango** travel router:
 
 | Device | Hostname | Static IP |
 |--------|----------|-----------|
-| Raspberry Pi 5 (camera) | `pi5` | `192.168.8.10` |
-| Raspberry Pi 4 (display) | `pi4` | `192.168.8.11` |
+| Raspberry Pi 4 (camera) | `pi1` | `192.168.8.10` |
+| Raspberry Pi 5 (display) | `pi5` | `192.168.8.11` |
 
-The setup scripts (`setup_pi5.sh` / `setup_pi4.sh`) configure WiFi and static
+The setup scripts (`setup_pi1.sh` / `setup_pi5.sh`) configure WiFi and static
 IPs automatically via `scripts/setup_network.sh`.  To reconfigure manually:
 
 ```bash
@@ -91,7 +91,7 @@ sudo bash /home/pi/2pis/scripts/setup_network.sh
 To skip network configuration during setup (e.g. on a home network):
 
 ```bash
-SKIP_NETWORK=1 bash scripts/setup_pi5.sh   # or setup_pi4.sh
+SKIP_NETWORK=1 bash scripts/setup_pi1.sh   # or setup_pi5.sh
 ```
 
 ---
@@ -102,7 +102,7 @@ SKIP_NETWORK=1 bash scripts/setup_pi5.sh   # or setup_pi4.sh
 
 Flash **Raspberry Pi OS Lite (64-bit)** on both Pis using Raspberry Pi Imager.  
 In the imager advanced options:
-- Set hostname **`pi5`** on Pi5, **`pi4`** on Pi4.
+- Set hostname **`pi1`** on Pi1, **`pi5`** on Pi5.
 - Enable SSH.
 - Pre-configure your museum WiFi credentials.
 - Set username `pi` and a password.
@@ -117,23 +117,23 @@ git clone <your-repo-url> /home/pi/2pis
 ### 2 · Prepare the USB stick
 
 Format a USB stick as **FAT32** or **exFAT** and label it exactly **`TIMELAPSE`**
-(case-sensitive).  Plug it into the Pi4.
+(case-sensitive).  Plug it into the Pi5.
 
-### 3 · Set up Pi4 (display / server)
+### 3 · Set up Pi5 (display / server)
 
 ```bash
-ssh pi@pi4.local
+ssh pi@pi5.local
 cd /home/pi/2pis
-bash scripts/setup_pi4.sh
+bash scripts/setup_pi5.sh
 ```
 
 This installs Flask, ffmpeg, mpv, avahi-daemon, configures the udev auto-mount
 rule, installs and enables the systemd services, and runs the offline tests.
 
-### 4 · Edit Pi4 config (optional)
+### 4 · Edit Pi5 config (optional)
 
 ```bash
-nano /home/pi/2pis/pi4/config.py
+nano /home/pi/2pis/pi5/config.py
 ```
 
 Key settings:
@@ -144,41 +144,41 @@ Key settings:
 | `REBUILD_EVERY_N` | `10` | Rebuild video every N new frames |
 | `DISPLAY_WIDTH/HEIGHT` | `800 × 480` | Waveshare 5-inch resolution |
 
-### 5 · Set up Pi5 (camera)
+### 5 · Set up Pi1 (camera)
 
-The default `pi5/config.py` already points at Pi4's static IP on the museum
+The default `pi1/config.py` already points at Pi5's static IP on the museum
 network (`192.168.8.11`).  If you use a different network, edit it first:
 
 ```python
-PI4_HOST = "192.168.8.11"  # Pi4 static IP on the Goodlife network
+PI5_HOST = "192.168.8.11"  # Pi5 static IP on the Goodlife network
 CAPTURE_INTERVAL = 30      # seconds between frames
 ```
 
 Then run the setup:
 
 ```bash
-ssh pi@pi5.local
+ssh pi@pi1.local
 cd /home/pi/2pis
-bash scripts/setup_pi5.sh
+bash scripts/setup_pi1.sh
 ```
 
 ### 6 · Reboot both Pis
 
 ```bash
+sudo reboot   # on Pi1
 sudo reboot   # on Pi5
-sudo reboot   # on Pi4
 ```
 
 After reboot:
-- Pi5 starts capturing and sending frames automatically.
-- Pi4 receives frames, stores them on the USB stick, rebuilds the timelapse,
+- Pi1 starts capturing and sending frames automatically.
+- Pi5 receives frames, stores them on the USB stick, rebuilds the timelapse,
   and plays it on the display — all automatically.
 
 ---
 
 ## Display setup (Waveshare 5-inch)
 
-Add to `/boot/config.txt` on Pi4:
+Add to `/boot/config.txt` on Pi5:
 
 ```
 # Waveshare 5-inch HDMI display
@@ -188,7 +188,7 @@ hdmi_cvt=800 480 60 6 0 0 0
 hdmi_drive=1
 ```
 
-Reboot Pi4 after making this change.
+Reboot Pi5 after making this change.
 
 ---
 
@@ -206,11 +206,11 @@ display_rotate=2   # 0=normal, 1=90°, 2=180°, 3=270°
 
 When the Pis are powered off and back on:
 
-1. Pi4 boots, the USB stick is auto-mounted.
-2. `pi4-server` starts and detects existing JPEG frames on the USB stick.
+1. Pi5 boots, the USB stick is auto-mounted.
+2. `pi5-server` starts and detects existing JPEG frames on the USB stick.
 3. If no MP4 exists yet it rebuilds the timelapse from stored frames.
-4. `pi4-player` starts and plays the timelapse on loop.
-5. Pi5 boots and resumes capturing frames — new frames are appended to the
+4. `pi5-player` starts and plays the timelapse on loop.
+5. Pi1 boots and resumes capturing frames — new frames are appended to the
    existing set, and the timelapse is rebuilt periodically.
 
 No manual intervention is needed.
@@ -230,13 +230,13 @@ Output:
 ```
 =========================================
  2pis Status Check
- Pi4 address: 192.168.8.11:5000
+ Pi5 address: 192.168.8.11:5000
 =========================================
 
 [Network]
-  ✓ Pi4 is reachable on the network
+  ✓ Pi5 is reachable on the network
 
-[Pi4 Server]
+[Pi5 Server]
   ✓ Server is up
   Frame count     : 142
   Last frame      : 20240315_143022
@@ -247,14 +247,14 @@ Output:
   Pending rebuild : 3 frames
 ```
 
-### Pi4 HTTP debug endpoints
+### Pi5 HTTP debug endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/status` | GET | JSON: frame count, video info, USB status |
 | `/frames` | GET | JSON: list of all stored frame filenames |
 | `/rebuild` | GET | Trigger an immediate timelapse rebuild |
-| `/receive_frame` | POST | Receive a JPEG frame from Pi5 |
+| `/receive_frame` | POST | Receive a JPEG frame from Pi1 |
 
 Example:
 
@@ -267,55 +267,55 @@ curl http://192.168.8.11:5000/rebuild
 ### View service logs
 
 ```bash
-# On Pi5
-sudo journalctl -u pi5-camera -f
+# On Pi1
+sudo journalctl -u pi1-camera -f
 
-# On Pi4
-sudo journalctl -u pi4-server -f
-sudo journalctl -u pi4-player -f
+# On Pi5
+sudo journalctl -u pi5-server -f
+sudo journalctl -u pi5-player -f
 ```
 
-### Manually test Pi5 camera
+### Manually test Pi1 camera
 
 ```bash
 # Capture one frame and check the camera is working (no network needed)
-cd /home/pi/2pis/pi5
+cd /home/pi/2pis/pi1
 python3 camera.py --dry-run
 
-# Capture one frame and send it to Pi4 (requires Pi4 to be running)
+# Capture one frame and send it to Pi5 (requires Pi5 to be running)
 python3 camera.py --test
 ```
 
-### Manually test Pi4 player (desktop mode)
+### Manually test Pi5 player (desktop mode)
 
 ```bash
-cd /home/pi/2pis/pi4
+cd /home/pi/2pis/pi5
 python3 player.py --debug    # no fullscreen, verbose output
 ```
 
 ### Manually trigger a timelapse rebuild
 
 ```bash
-cd /home/pi/2pis/pi4
+cd /home/pi/2pis/pi5
 python3 timelapse.py /media/pi/TIMELAPSE/frames /media/pi/TIMELAPSE/timelapse.mp4
 ```
 
 ### Run offline unit tests
 
 ```bash
-# Pi5 tests (no camera or network needed)
-cd /home/pi/2pis/pi5
+# Pi1 tests (no camera or network needed)
+cd /home/pi/2pis/pi1
 python3 -m pytest test_capture.py -v
 
-# Pi4 tests (no hardware needed)
-cd /home/pi/2pis/pi4
+# Pi5 tests (no hardware needed)
+cd /home/pi/2pis/pi5
 python3 -m pytest test_server.py -v
 ```
 
 ### Check USB stick
 
 ```bash
-# On Pi4
+# On Pi5
 bash /home/pi/2pis/scripts/mount_usb.sh
 df -h /media/pi/TIMELAPSE
 ls /media/pi/TIMELAPSE/frames | wc -l   # number of stored frames
@@ -325,15 +325,15 @@ ls /media/pi/TIMELAPSE/frames | wc -l   # number of stored frames
 
 ```bash
 # Restart a service
-sudo systemctl restart pi5-camera   # on Pi5
-sudo systemctl restart pi4-server   # on Pi4
-sudo systemctl restart pi4-player   # on Pi4
+sudo systemctl restart pi1-camera   # on Pi1
+sudo systemctl restart pi5-server   # on Pi5
+sudo systemctl restart pi5-player   # on Pi5
 
 # Disable autostart temporarily
-sudo systemctl disable pi5-camera
+sudo systemctl disable pi1-camera
 
 # Re-enable
-sudo systemctl enable pi5-camera
+sudo systemctl enable pi1-camera
 ```
 
 ---
@@ -365,16 +365,16 @@ Bullseye).  The old config is backed up automatically.
 
 ---
 
-## Network: using a static IP instead of `pi4.local`
+## Network: using a static IP instead of `pi5.local`
 
 Static IPs are pre-configured by `scripts/setup_network.sh` (see
-[Museum network](#museum-network) above).  Pi5 `config.py` already points at
-Pi4's static IP (`192.168.8.11`).
+[Museum network](#museum-network) above).  Pi1 `config.py` already points at
+Pi5's static IP (`192.168.8.11`).
 
 If you need **different** static IPs on another router, edit
-`scripts/setup_network.sh` and `pi5/config.py`, then re-run the setup.
+`scripts/setup_network.sh` and `pi1/config.py`, then re-run the setup.
 
-For a quick manual override **on Pi4** — add to `/etc/dhcpcd.conf`:
+For a quick manual override **on Pi5** — add to `/etc/dhcpcd.conf`:
 
 ```
 interface wlan0
@@ -383,10 +383,10 @@ static routers=192.168.8.1
 static domain_name_servers=8.8.8.8
 ```
 
-Then edit **Pi5** `config.py`:
+Then edit **Pi1** `config.py`:
 
 ```python
-PI4_HOST = "192.168.8.11"
+PI5_HOST = "192.168.8.11"
 ```
 
 Restart services after making this change.
@@ -397,12 +397,12 @@ Restart services after making this change.
 
 | Symptom | Likely cause | Fix |
 |---------|-------------|-----|
-| Pi5 log shows "Cannot reach Pi4" | Pi4 not running or wrong host | Check Pi4 services; verify `PI4_HOST` in `pi5/config.py` |
-| Display shows nothing | Player waiting for first video | Wait a few minutes; check `sudo journalctl -u pi4-player -f` |
+| Pi1 log shows "Cannot reach Pi5" | Pi5 not running or wrong host | Check Pi5 services; verify `PI5_HOST` in `pi1/config.py` |
+| Display shows nothing | Player waiting for first video | Wait a few minutes; check `sudo journalctl -u pi5-player -f` |
 | USB stick not mounted | Wrong label or not plugged in | Label stick `TIMELAPSE`; run `bash scripts/mount_usb.sh` |
 | Video stutters | USB stick is slow | Use a quality USB 3.0 stick or local storage |
-| `ffmpeg not found` on Pi4 | Not installed | `sudo apt install ffmpeg` |
-| `mpv not found` on Pi4 | Not installed | `sudo apt install mpv` |
-| Camera not detected on Pi5 | Camera cable not connected | Check cable between HQ Camera and Pi5 CSI connector |
-| `pi4.local` not found | avahi not running or mDNS unavailable | Use static IP `192.168.8.11` instead; `sudo systemctl start avahi-daemon` on Pi4 |
+| `ffmpeg not found` on Pi5 | Not installed | `sudo apt install ffmpeg` |
+| `mpv not found` on Pi5 | Not installed | `sudo apt install mpv` |
+| Camera not detected on Pi1 | Camera cable not connected | Check cable between HQ Camera and Pi1 CSI connector |
+| `pi5.local` not found | avahi not running or mDNS unavailable | Use static IP `192.168.8.11` instead; `sudo systemctl start avahi-daemon` on Pi5 |
 
