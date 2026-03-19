@@ -26,7 +26,7 @@ _PI4_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, _PI4_DIR)
 
 # Import pi4 config via its unique module name (_pi4cfg) to avoid
-# shadowing by pi3/config.py when both test suites run in the same session.
+# shadowing by pi5/config.py when both test suites run in the same session.
 import _pi4cfg as config  # noqa: F401
 
 # Also register pi4/config as the generic 'config' so server.py's

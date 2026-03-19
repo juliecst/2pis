@@ -1,7 +1,7 @@
 """
-_pi3cfg — Pi3 config loader
+_pi5cfg — Pi5 config loader
 ============================
-Loads pi3/config.py from the directory this file lives in, using importlib,
+Loads pi5/config.py from the directory this file lives in, using importlib,
 so it is always the correct config regardless of what is on sys.path or
 cached in sys.modules['config'].
 
@@ -12,10 +12,10 @@ import importlib.util
 import os
 import sys
 
-_PI3_DIR  = os.path.dirname(os.path.abspath(__file__))
-_CONF_PATH = os.path.join(_PI3_DIR, "config.py")
+_PI5_DIR  = os.path.dirname(os.path.abspath(__file__))
+_CONF_PATH = os.path.join(_PI5_DIR, "config.py")
 
-_spec = importlib.util.spec_from_file_location("_pi3cfg", _CONF_PATH)
+_spec = importlib.util.spec_from_file_location("_pi5cfg", _CONF_PATH)
 _mod  = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_mod)
 
@@ -34,6 +34,6 @@ LOG_FILE             = _mod.LOG_FILE
 LOG_MAX_BYTES        = _mod.LOG_MAX_BYTES
 LOG_BACKUP_COUNT     = _mod.LOG_BACKUP_COUNT
 
-# Make sure pi3/ is on sys.path so other pi3 modules can be imported
-if _PI3_DIR not in sys.path:
-    sys.path.insert(0, _PI3_DIR)
+# Make sure pi5/ is on sys.path so other pi5 modules can be imported
+if _PI5_DIR not in sys.path:
+    sys.path.insert(0, _PI5_DIR)

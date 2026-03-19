@@ -1,5 +1,5 @@
 """
-Pi3 Configuration
+Pi5 Configuration
 -----------------
 Edit these values to match your setup.
 """
@@ -22,6 +22,6 @@ RETRY_DELAY  = 10   # seconds between retries
 REQUEST_TIMEOUT = 15  # seconds before a send attempt times out
 
 # --- Logging ---
-LOG_FILE = "/home/pi/pi3-camera.log"
+LOG_FILE = "/home/pi/pi5-camera.log"
 LOG_MAX_BYTES  = 5 * 1024 * 1024   # 5 MB
 LOG_BACKUP_COUNT = 3

@@ -1,7 +1,7 @@
 """
 Root conftest.py
 ================
-When pytest collects tests from both pi3/ and pi4/ in the same session the
+When pytest collects tests from both pi5/ and pi4/ in the same session the
 two directories each contain a module named config.py.  The per-directory
 conftest files handle this for runs from a single directory; this file handles
 the combined case by using pytest_pycollect_makemodule to swap sys.path and
@@ -12,10 +12,10 @@ import os
 import sys
 
 _ROOT = os.path.dirname(os.path.abspath(__file__))
-_PI3  = os.path.join(_ROOT, "pi3")
+_PI5  = os.path.join(_ROOT, "pi5")
 _PI4  = os.path.join(_ROOT, "pi4")
 
-_PI3_MODS = ("config", "camera")
+_PI5_MODS = ("config", "camera")
 _PI4_MODS = ("config", "timelapse", "server", "player")
 
 
@@ -50,7 +50,7 @@ def _activate_dir(primary: str, other: str, module_names: tuple) -> None:
 def pytest_pycollect_makemodule(module_path, parent):
     """Called just before a test module is imported — fix the path first."""
     fdir = str(module_path.parent.resolve())
-    if fdir == _PI3:
-        _activate_dir(_PI3, _PI4, _PI3_MODS)
+    if fdir == _PI5:
+        _activate_dir(_PI5, _PI4, _PI5_MODS)
     elif fdir == _PI4:
-        _activate_dir(_PI4, _PI3, _PI4_MODS)
+        _activate_dir(_PI4, _PI5, _PI4_MODS)
