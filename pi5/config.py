@@ -1,27 +1,39 @@
 """
-Pi5 Configuration
+Pi4 Configuration
 -----------------
 Edit these values to match your setup.
 """
 
-# --- Network ---
-# Pi4 address: static IP on the museum Goodlife network (GL-net Mango router)
-PI4_HOST = "192.168.8.11"
-PI4_PORT = 5000
-PI4_RECEIVE_ENDPOINT = "/receive_frame"
-PI4_STATUS_ENDPOINT   = "/status"
+import os
 
-# --- Capture ---
-CAPTURE_INTERVAL = 30   # seconds between frames (reduce for faster timelapse)
-RESOLUTION       = (1920, 1080)  # (width, height); HQ cam max = (4056, 3040)
-JPEG_QUALITY     = 85           # 1-95; higher = better quality, larger file
+# --- Server ---
+SERVER_HOST = "0.0.0.0"
+SERVER_PORT = 5000
 
-# --- Reliability ---
-MAX_RETRIES  = 5    # retry a failed send this many times
-RETRY_DELAY  = 10   # seconds between retries
-REQUEST_TIMEOUT = 15  # seconds before a send attempt times out
+# --- Storage ---
+# Primary storage on USB stick (recommended for persistence across power cycles)
+USB_MOUNT_POINT = "/media/pi/TIMELAPSE"   # label your USB stick "TIMELAPSE"
+USB_FRAMES_DIR  = os.path.join(USB_MOUNT_POINT, "frames")
+USB_VIDEO_PATH  = os.path.join(USB_MOUNT_POINT, "timelapse.mp4")
+
+# Local fallback (used when USB stick is not mounted)
+LOCAL_FRAMES_DIR = os.path.expanduser("~/timelapse_frames")
+LOCAL_VIDEO_PATH = os.path.expanduser("~/timelapse.mp4")
+
+# Temporary video path used during rebuild to allow atomic rename
+TEMP_VIDEO_SUFFIX = ".tmp.mp4"
+
+# --- Timelapse ---
+TIMELAPSE_FPS    = 24    # output video frames-per-second
+REBUILD_EVERY_N  = 10    # rebuild video after every N new frames (0 = every frame)
+
+# --- Display (Waveshare 5-inch) ---
+DISPLAY_WIDTH  = 800
+DISPLAY_HEIGHT = 480
+# Extra mpv options; set "" if not needed
+MPV_EXTRA_OPTS = "--no-osc --no-osd-bar"
 
 # --- Logging ---
-LOG_FILE = "/home/pi/pi5-camera.log"
-LOG_MAX_BYTES  = 5 * 1024 * 1024   # 5 MB
+LOG_FILE = "/home/pi/pi4-server.log"
+LOG_MAX_BYTES    = 5 * 1024 * 1024
 LOG_BACKUP_COUNT = 3
